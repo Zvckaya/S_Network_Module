@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,13 +38,35 @@ namespace S_Network_Module
 
                 //커넥션마다 풀이 있어야함
                 {
-                    //args = new SocketAsyncEventArgs();
-                    //args.Completed += new EventHandler<SocketAsyncEventArgs>(receive_completed);
-                    //args.UserToken = token;
+                    args = new SocketAsyncEventArgs();
+                    args.Completed += new EventHandler<SocketAsyncEventArgs>(receive_completed);
+                    args.UserToken = token;
 
-                    
+                    this.buffer_manager.SetBuffer(args);
+
+                    this.receive_event_args_pool.Push(args);
+                }
+
+                {
+                    args = new SocketAsyncEventArgs();
+                    args.Completed += new EventHandler<SocketAsyncEventArgs>(send_completed);
+                    args.UserToken = token;
+
+                    this.buffer_manager.SetBuffer(args);
+
+                    this.send_event_args_pool.Push(args);
                 }
             }
+        }
+
+        private void send_completed(object? sender, SocketAsyncEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void receive_completed(object? sender, SocketAsyncEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         public void listen(string host, int port, int backlog)
@@ -55,7 +78,36 @@ namespace S_Network_Module
 
         public void on_new_client(Socket client_socket, object token)
         {
+            SocketAsyncEventArgs receive_args = this.receive_event_args_pool.Pop();
+            SocketAsyncEventArgs send_args = this.send_event_args_pool.Pop();
 
+            if(this.session_created_call_back != null)
+            {
+                CUserToken user_token = receive_args.UserToken as CUserToken;
+                this.session_created_call_back(user_token);
+            }
+
+            begin_recive(client_socket, receive_args, send_args);
+        }
+
+        void begin_recive(Socket client_socket, SocketAsyncEventArgs receive_args, SocketAsyncEventArgs send_args)
+        {
+            CUserToken token = receive_args.UserToken as CUserToken;
+            token.set_event_args(receive_args, send_args);
+
+            //생성된 클라이언트 소켓 보관
+            token.socket = client_socket;
+
+            bool pending = client_socket.ReceiveAsync(receive_args);
+            if (pending == false)
+            {
+                process_recive(receive_args);
+            }
+        }
+
+        private void process_recive(SocketAsyncEventArgs receive_args)
+        {
+            throw new NotImplementedException();
         }
     }
 }
