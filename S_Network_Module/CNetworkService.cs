@@ -9,11 +9,14 @@ namespace S_Network_Module
 {
     public class CNetworkService
     {
+
+        int max_connections;
+
         CListener client_listenr;
 
         //메세지 수신,전송 시 사용함
-        SocketAsyncEventArgs receive_event_args_pool; 
-        SocketAsyncEventArgs send_event_args_pool;
+        SocketAsyncEventArgsPool receive_event_args_pool;
+        SocketAsyncEventArgsPool send_event_args_pool;
 
         BufferManager buffer_manager;
 
@@ -21,6 +24,28 @@ namespace S_Network_Module
         public delegate void SessionHandler(CUserToken token);
         public SessionHandler session_created_call_back { get; set; }
         
+        public void initailize()
+        {
+            this.receive_event_args_pool = new SocketAsyncEventArgsPool(this.max_connections);
+            this.send_event_args_pool = new SocketAsyncEventArgsPool(this.max_connections);
+
+            SocketAsyncEventArgs args;
+
+            for(int i=0; i< this.max_connections; i++)
+            {
+                CUserToken token = new CUserToken();
+
+                //커넥션마다 풀이 있어야함
+                {
+                    //args = new SocketAsyncEventArgs();
+                    //args.Completed += new EventHandler<SocketAsyncEventArgs>(receive_completed);
+                    //args.UserToken = token;
+
+                    
+                }
+            }
+        }
+
         public void listen(string host, int port, int backlog)
         {
             CListener listener = new CListener();
