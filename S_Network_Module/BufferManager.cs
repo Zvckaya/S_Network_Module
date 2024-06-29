@@ -29,7 +29,7 @@ namespace S_Network_Module
             m_buffer = new byte[m_bufferSize]; //버퍼 사이즈 만큼의 배열 생성
         }
 
-        public bool SetBuffer(SocketAsyncEventArgs args)
+        public bool SetBuffer(SocketAsyncEventArgs args)  // args 에 버퍼 설정, index를 조정하여 다음 버퍼 위치를 가르킬 수 있음 .
         {
             if(m_freeIndexPool.Count> 0)
             {
@@ -37,9 +37,9 @@ namespace S_Network_Module
             }
             else
             {
-                if((m_numByte - m_bufferSize) < m_currentIndex)
+                if((m_numByte - m_bufferSize) < m_currentIndex) // 남은 공간이 필요한 버퍼 크기보다 작을떄 
                 {
-                    return false;
+                    return false; 
                 }
                 args.SetBuffer(m_buffer, m_currentIndex, m_bufferSize);
                 m_currentIndex += m_bufferSize;
@@ -48,7 +48,7 @@ namespace S_Network_Module
             return true;
         }
 
-        public void FreeBuffer(SocketAsyncEventArgs args)
+        public void FreeBuffer(SocketAsyncEventArgs args) //사용하지 않는 버퍼 반환 
         {
             m_freeIndexPool.Push((byte)args.Offset);
             args.SetBuffer(null, 0, 0);
