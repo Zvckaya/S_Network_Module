@@ -18,7 +18,7 @@ namespace S_Network_Module
         AutoResetEvent flow_control_event; //스레드 동기화
 
         //새로운 클라이언트가 접속했을 떄 호출
-        public delegate void NewclientHandler(Socket client_socket, object tokent);
+        public delegate void NewclientHandler(Socket client_socket, object tokent); //oncompletedAccept <--이거임
         public NewclientHandler callback_on_newclient;
 
         public CListener()
@@ -69,7 +69,7 @@ namespace S_Network_Module
                 bool pending = true;
                 try
                 {
-                    pending = listen_socekt.AcceptAsync(this.accept_args);
+                    pending = listen_socekt.AcceptAsync(this.accept_args); //일단 시도 성공시 true
                 }
                 catch (Exception ex)
                 {
@@ -82,7 +82,7 @@ namespace S_Network_Module
                     on_accept_completed(null, this.accept_args);
                 }
 
-                this.flow_control_event.WaitOne();
+                this.flow_control_event.WaitOne(); // 
             }
 
         }
@@ -91,6 +91,7 @@ namespace S_Network_Module
         {
             if (e.SocketError == SocketError.Success)
             {
+                //새로 생긴 소켓을 보관해 놓음
                 Socket client_socket = e.AcceptSocket;
 
                 this.flow_control_event.Set();
