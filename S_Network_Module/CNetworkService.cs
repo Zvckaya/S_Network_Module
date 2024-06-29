@@ -105,7 +105,27 @@ namespace S_Network_Module
             }
         }
 
-        private void process_recive(SocketAsyncEventArgs receive_args)
+        private void process_recive(SocketAsyncEventArgs e)
+        {
+            CUserToken token = e.UserToken as CUserToken;
+            if(e.BytesTransferred >0 && e.SocketError == SocketError.Success)
+            {
+                token.on_receive(e.Buffer, e.Offset, e.BytesTransferred);
+
+                bool pending = token.socket.ReceiveAsync(e);
+                if (!pending)
+                {
+                    process_recive(e);  //연속적으로 데이터를 받기 위함.
+                }
+            }
+            else
+            {
+                Console.WriteLine($"{e.SocketError} , {e.BytesTransferred}");
+                close_clientsocket(token);
+            }
+        }
+
+        private void close_clientsocket(CUserToken? token)
         {
             throw new NotImplementedException();
         }
