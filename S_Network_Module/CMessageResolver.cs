@@ -90,7 +90,9 @@ namespace S_Network_Module
 
         private void clear_buffer()
         {
-            throw new NotImplementedException();
+            Array.Clear(this.message_buffer, 0, this.message_buffer.Length);
+            this.current_position = 0;
+            this.message_size = 0;
         }
 
         private int get_body_size()
