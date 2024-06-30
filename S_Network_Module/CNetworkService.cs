@@ -107,11 +107,15 @@ namespace S_Network_Module
 
         private void process_recive(SocketAsyncEventArgs e)
         {
+            //호스트가 연결을 끊었는지 확인한다.    
             CUserToken token = e.UserToken as CUserToken;
+
             if(e.BytesTransferred >0 && e.SocketError == SocketError.Success)
             {
+                
                 token.on_receive(e.Buffer, e.Offset, e.BytesTransferred);
-
+                // 데이터가 들어있는 buffer, 데이터의 시작위치, 수신된 데이터 바이트 수
+                //일단 메세지 수신
                 bool pending = token.socket.ReceiveAsync(e);
                 if (!pending)
                 {
